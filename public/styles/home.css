@@ -1,0 +1,380 @@
+@import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c&family=Tiro+Bangla:ital@0;1&display=swap');
+
+html,body {
+    width: 100%;
+    height: 100%;
+    margin: 0px;
+    padding: 0px;
+    overflow-x: hidden;
+    background-color: black;
+}
+
+@keyframes borderAnimation {
+    from {
+        border-width: 0px;
+        /* Starting with no border */
+    }
+
+    to {
+        border-width: 16px;
+        /* Default final desired border width */
+    }
+}
+
+@keyframes zoomEffect {
+    from {
+        transform: scale(1.5);
+        /* Starting scale */
+    }
+
+    to {
+        transform: scale(1);
+        /* Ending scale, creating a zoom effect */
+    }
+}
+
+@keyframes zoomEffect2 {
+    from {
+        transform: scale(1.5);
+        /* Starting scale */
+    }
+
+    to {
+        transform: scale(0.95);
+        /* Ending scale, creating a zoom effect */
+    }
+}
+
+@keyframes appear {
+    from {
+        opacity: 0;
+        /* Starting scale */
+    }
+
+    to {
+        opacity: 100;
+        /* Ending scale, creating a zoom effect */
+    }
+}
+
+/* Apply the animation to the element */
+.animated-border {
+    animation: borderAnimation 1s ease-in-out forwards;
+    /* Adjust timing to your preference */
+}
+
+/* Media query for larger screens */
+@media screen and (min-width: 1024px) {
+    @keyframes borderAnimation {
+        from {
+            border-width: 0px;
+            /* Starting with no border */
+        }
+
+        to {
+            border-width: 40px;
+            /* Increased border width for larger screens */
+        }
+    }
+}
+
+/* Ensuring the border does not zoom */
+.image-container {
+    overflow: hidden;
+    /* transition: border-color 1s ease-in-out; */
+    animation: borderAnimation 2.8s ease-in-out 0s forwards;
+    /* Animation for the border starts after 0s delay */
+}
+
+.image-zoom {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    animation: zoomEffect 6s ease-in-out forwards;
+}
+
+.image-zoom2 {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    animation: zoomEffect2 2.5s ease-in-out forwards;
+}
+
+.custom-font {
+    font-family: 'M PLUS Rounded 1c', sans-serif;
+}
+
+.description {
+    font-family: "Tiro Bangla", serif;
+    line-height: 2.2rem;
+}
+
+.bangla-font {
+    font-family: "Tiro Bangla", serif;
+}
+
+.anim-appear {
+    opacity: 0;
+    animation: appear 1.5s ease-in-out 1.7s forwards;
+}
+
+.anim-appear-2 {
+    opacity: 0;
+    animation: appear 1.5s ease-in-out 2.2s forwards;
+}
+
+.anim-appear-3 {
+    opacity: 0;
+    animation: appear 1.5s ease-in-out 0.25s forwards;
+}
+
+.anim-appear-4 {
+    opacity: 0;
+    animation: appear 1.5s ease-in-out 0.35s forwards;
+}
+
+.anim-appear-5 {
+    opacity: 0;
+    animation: appear 1.5s ease-in-out 0.5s forwards;
+}
+
+.anim-appear-6 {
+    opacity: 0;
+    animation: appear 1.5s ease-in-out 1s forwards;
+}
+
+.anim-appear-7 {
+    opacity: 0;
+    animation: appear 1.5s ease-in-out 1.5s forwards;
+}
+
+.anim-appear-8 {
+    opacity: 0;
+    animation: appear 1.5s ease-in-out 2s forwards;
+}
+
+.hover-effect {
+    display: inline-block;
+    position: relative;
+    cursor: pointer;
+}
+
+.hover-effect::before {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 0.2px;
+    bottom: -2px;
+    left: 0;
+    background-color: white;
+    visibility: hidden;
+    transition: all 0.3s ease-in-out;
+}
+
+.hover-effect-white {
+    display: inline-block;
+    position: relative;
+    cursor: pointer;
+}
+
+.hover-effect-white::before {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 5px;
+    left: 0;
+    background-color: white;
+    visibility: hidden;
+    transition: all 0.3s ease-in-out;
+}
+
+.hover-effect-white:hover::before {
+    margin: 0 0 0 14px;
+    width: 95%;
+    visibility: visible;
+}
+
+.hover-effect-black {
+    display: inline-block;
+    position: relative;
+    cursor: pointer;
+}
+
+.hover-effect-black::before {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 5px;
+    left: 0;
+    background-color: black;
+    visibility: hidden;
+    transition: all 0.3s ease-in-out;
+}
+
+.hover-effect-black:hover::before {
+    margin: 0 0 0 14px;
+    width: 93%;
+    visibility: visible;
+}
+
+.hover-effect-red {
+    display: inline-block;
+    position: relative;
+    cursor: pointer;
+}
+
+.hover-effect-red::before {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 5px;
+    left: 0;
+    background-color: maroon;
+    visibility: hidden;
+    transition: all 0.3s ease-in-out;
+}
+
+.hover-effect-red:hover::before {
+    margin: 0 0 0 16px;
+    width: 50%;
+    visibility: visible;
+}
+
+.link-comp:hover .hover-effect::before {
+    visibility: visible;
+    width: 100%;
+}
+
+/* Custom CSS */
+.custom-link {
+    width: auto;
+}
+
+@media (max-width: 1023px) {
+
+    /* Adjust based on your 'lg' breakpoint */
+    .custom-link {
+        width: calc(100vw - 2em);
+        margin: 0 1em 1em 1em;
+        /* Resets width for larger devices */
+    }
+}
+
+.next-button-container {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    margin-right: 2.5em;
+    margin-bottom: 2.5em;
+}
+
+.back-button-container {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    margin-left: 2.5em;
+    margin-bottom: 2.5em;
+}
+
+.next-button {
+    background-color: black;
+    padding: 1rem;
+    border: 2px solid white;
+    color: white;
+    margin: 1rem;
+}
+
+@media (max-width: 1023px) {
+
+    .next-button-container {
+        margin: 0 1.5em 0 0;
+        transform: translateY(-50vh);
+    }
+
+    .back-button-container {
+        margin: 0 0 0 1.5em;
+        transform: translateY(-50vh);
+    }
+
+    .next-button {
+        margin: 0;
+        padding: 0;
+        background-color: transparent;
+        border: 0;
+    }
+}
+
+.menu-item {
+    font-size: 1.8rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    cursor: pointer;
+    margin: 1.1em 0 0 0 ;
+    padding: 0;
+}
+
+
+@media (max-width: 1023px) {
+
+    .menu-item {
+        font-size: 1.2rem;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        cursor: pointer;
+        margin: 1.5em 0 0 0 ;
+        padding: 0;
+    }
+
+    .hover-effect-black::before {
+        bottom: 0px;
+        background-color: black;
+    }
+
+    .hover-effect-black:hover::before {
+        margin: 0 0 0 4px;
+        width: 100%;
+    }
+
+    .hover-effect-red::before {
+        bottom: 0px;
+        background-color: maroon;
+    }
+
+    .hover-effect-red:hover::before {
+        margin: 0 0 0 4px;
+        width: 55%;
+    }
+}
+
+.fade-in {
+    animation: fadeInAnimation ease-in 1s;
+    animation-fill-mode: both;
+    pointer-events: none;
+  }
+
+  @keyframes fadeInAnimation {
+    0% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+.perspective-container {
+    perspective: 1000px; /* Adjust the depth of the effect */
+    margin-bottom: 2rem; /* Optional: Spacing below the container */
+  }
+
+  .image-3d-hover {
+    transition: transform 1.6s ease-in-out; /* Smooth transition */
+    transform-origin: center; /* Ensures the rotation pivots around the center */
+    display: block; /* Required to apply transformations */
+    border-radius: 8px; /* Optional: Adds rounded corners */
+  }
+
+  .perspective-container:hover .image-3d-hover {
+    transform: rotateY(-25deg) rotateX(15deg); /* Adjust the 3D effect angles */
+  }
+

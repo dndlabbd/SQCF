@@ -1,0 +1,308 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+model Art {
+  id        String   @id @default(uuid())
+  title     String
+  title_Bangla String
+  year      String
+  year_Bangla String
+  imageUrl  String
+  description String
+  measurement     String
+  measurement_Bangla    String
+  medium    String
+  medium_Bangla String
+  publication String
+  type      String
+  tags      String[]
+  tags_Bangla String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([createdAt])
+  @@map("arts")
+}
+
+model BookCover {
+  id        String   @id @default(uuid())
+  title     String
+  author    String
+  publisher String
+  date      String
+  type     String
+  type_Bangla String
+  imageUrl  String
+  tags      String[]
+  tags_Bangla String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([createdAt])
+  @@map("book_covers")
+}
+
+model Poster {
+  id        String   @id @default(uuid())
+  title     String
+  imageUrl  String
+  category      String
+  year    String
+  year_Bangla String
+  for_whom  String
+  measurement     String
+  measurement_Bangla    String
+  tags      String[]
+  tags_Bangla String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([createdAt])
+  @@map("posters")
+}
+
+model Logo {
+  id        String   @id @default(uuid())
+  title     String
+  imageUrl  String
+  date    String
+  medium    String
+  medium_Bangla String
+  measurement     String
+  measurement_Bangla    String
+  tags      String[]
+  tags_Bangla String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([createdAt])
+  @@map("logos")
+}
+
+model MasterHead {
+  id        String   @id @default(uuid())
+  title     String
+  editor  String
+  link     String
+  imageUrl  String
+  date    String
+  medium    String
+  medium_Bangla String
+  measurement     String
+  measurement_Bangla    String
+  tags      String[]
+  tags_Bangla String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([createdAt])
+  @@map("master_heads")
+}
+
+model Calligraphy {
+  id        String   @id @default(uuid())
+  title     String
+  ogranization  String
+  link     String
+  imageUrl  String
+  date    String
+  tags      String[]
+  tags_Bangla String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([createdAt])
+  @@map("calligraphies")
+}
+
+model Portrait {
+  id        String   @id @default(uuid())
+  title     String
+  link     String
+  imageUrl  String
+  date    String
+  where_used  String
+  author  String
+  organization  String
+  measurement     String
+  measurement_Bangla    String
+  tags      String[]
+  tags_Bangla String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([createdAt])
+  @@map("portraits")
+}
+
+model CrestDesign {
+  id        String   @id @default(uuid())
+  title     String
+  subtitle  String
+  date    String
+  organization  String
+  collector  String
+  imageUrl  String
+  tags      String[]
+  tags_Bangla String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([createdAt])
+  @@map("crest_designs")
+}
+
+model Textile {
+  id        String   @id @default(uuid())
+  title     String
+  type  String
+  measurement    String
+  measurement_Bangla  String
+  medium  String
+  medium_Bangla String
+  material  String
+  imageUrl  String
+  tags      String[]
+  tags_Bangla String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([createdAt])
+  @@map("textiles")
+}
+
+model IllustrationCard {
+  id        String   @id @default(uuid())
+  title     String
+  subtitle  String
+  publisher String
+  year      String
+  year_Bangla String
+  imageUrl  String
+  tags      String[]
+  tags_Bangla String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([createdAt])
+  @@map("illustrations_cards")
+}
+
+model Photograph {
+  id        String   @id @default(uuid())
+  title     String
+  subtitle  String
+  date      String
+  link      String
+  details   String
+  publisher String
+  measurement      String
+  measurement_Bangla String
+  imageUrl  String
+  tags      String[]
+  tags_Bangla String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([createdAt])
+  @@map("photographs")
+}
+
+model WritingByQC {
+  id        String   @id @default(uuid())
+  title     String
+  subtitle  String
+  publisher String
+  link      String
+  category String
+  date       String
+  date_Bangla String
+  imageUrl  String
+  imageAlt  String
+  text     String
+  tags      String[]
+  tags_Bangla String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([createdAt])
+  @@map("writings_by_qc")
+}
+
+model WritingOnQC {
+  id        String   @id @default(uuid())
+  title     String
+  subtitle  String
+  author    String
+  publisher String
+  link      String
+  date       String
+  date_Bangla String
+  imageUrl  String
+  imageAlt  String
+  text     String
+  tags      String[]
+  tags_Bangla String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([createdAt])
+  @@map("writings_on_qc")
+}
+
+model TaheraArt {
+  id        String   @id @default(uuid())
+  title     String
+  title_Bangla String
+  year      String
+  year_Bangla String
+  imageUrl  String
+  description String
+  measurement     String
+  measurement_Bangla    String
+  medium    String
+  medium_Bangla String
+  publication String
+  type      String
+  tags      String[]
+  tags_Bangla String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([createdAt])
+  @@map("tahera_arts")
+}
+
+model WritingByTC {
+  id        String   @id @default(uuid())
+  title     String
+  subtitle  String
+  publisher String
+  link      String
+  category String
+  date       String
+  date_Bangla String
+  imageUrl  String
+  imageAlt  String
+  text     String
+  tags      String[]
+  tags_Bangla String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([createdAt])
+  @@map("writings_by_tc")
+}

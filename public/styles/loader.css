@@ -1,0 +1,36 @@
+/* LoadingScreen.css */
+
+@keyframes loadingBarAnimation {
+    0% { transform: translateX(-100%); }
+    50% { transform: translateX(0%); }
+    100% { transform: translateX(100%); }
+  }
+
+  .loading-bar-container {
+    width: 80%;
+    background-color: #555;
+    height: 5px;
+    overflow: hidden;
+  }
+
+  .loading-bar {
+    height: 5px;
+    width: 70%;
+    background-color: white; /* Adjust this color as needed */
+    animation: loadingBarAnimation 2s infinite linear;
+  }
+
+  @keyframes appearAnimation {
+    from {
+      opacity: 0;
+      transform: translateY(0px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .appear {
+    animation: appearAnimation 1.5s ease-in forwards;
+  }
