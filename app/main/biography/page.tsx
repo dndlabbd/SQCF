@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/navbar";
+import Link from "next/link";
 
 type Section = {
   title: string;
