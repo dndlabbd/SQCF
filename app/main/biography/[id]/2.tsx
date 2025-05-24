@@ -40,6 +40,23 @@ export default function BiographySection2() {
             </p>
           </div>
         </div>
+
+        {/* Navigation Buttons */}
+        <div className="flex justify-between items-center mt-8">
+          <a
+            href="/main/biography/1"
+            className="text-gray-400 hover:text-white"
+          >
+            ← Previous Page
+          </a>
+          <p>Page: 3 of 4</p>
+          <a
+            href="/main/biography/3"
+            className="text-gray-400 hover:text-white"
+          >
+            Next Page →
+          </a>
+        </div>
       </div>
     </main>
   );

@@ -11,8 +11,8 @@ export default function BiographySection1() {
         <Navbar isMenuOpen={false} setIsMenuOpen={() => {}} />
       </nav>
       <div className="max-w-6xl mx-auto mt-16">
-        <h1 className="text-4xl font-bold mb-6">আর্ট ইনস্টিটিউট এবং গঠনমূলক বছর</h1>
-        <p className="text-lg text-gray-400 mb-4">১৯৫০–১৯৫৪</p>
+        <h1 className="text-4xl font-bold mb-6">শিক্ষাজীবন ও প্রাথমিক কর্মজীবন</h1>
+        <p className="text-lg text-gray-400 mb-8">১৯৫০–১৯৬০</p>
         <div className="flex flex-col md:flex-row gap-8">
           {/* Image Section */}
           <div className="md:w-1/3">
@@ -35,6 +35,17 @@ export default function BiographySection1() {
             </p>
             {/* Additional content omitted for brevity */}
           </div>
+        </div>
+
+        {/* Navigation Buttons */}
+        <div className="flex justify-between items-center mt-8">
+          <a href="/main/biography/0" className="text-gray-400 hover:text-white">
+            ← Previous Page
+          </a>
+          <p>Page: 2 of 4</p>
+          <a href="/main/biography/2" className="text-gray-400 hover:text-white">
+            Next Page →
+          </a>
         </div>
       </div>
     </main>
