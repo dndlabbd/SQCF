@@ -150,8 +150,7 @@ const AddArt: NextPage = () => {
   };
 
 
-  if (isAuthenticated) {
-    return (
+  const renderAuthenticatedContent = () => (
       <div style={{ padding: "20px" }} className='text-white mt-8'>
         {/* Automated Submission */}
 
@@ -223,9 +222,8 @@ const AddArt: NextPage = () => {
         </div>
       </div>
     );
-  } else {
-    return <Login onLogin={login} />;
-  }
+ 
+  return isAuthenticated ? renderAuthenticatedContent() : <Login onLogin={login} />;
 };
 
 export default AddArt;

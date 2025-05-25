@@ -133,8 +133,7 @@ const AddTaheraKhanam: NextPage = () => {
     }
   };
 
-  if (isAuthenticated) {
-    return (
+const renderAuthenticatedContent = () => (
       <div style={{ padding: "20px" }} className='text-white mt-8'>
         <div className="lg:grid-cols-2 grid-cols-1 flex flex-col lg:gap-y-6 gap-y-4 items-center justify-center text-black">
           <h1 className="text-white text-4xl font-bold text-center">Insert Tahera Khanam Content</h1>
@@ -191,9 +190,8 @@ const AddTaheraKhanam: NextPage = () => {
         </div>
       </div>
     );
-  } else {
-    return <Login onLogin={login} />;
-  }
+
+  return isAuthenticated ? renderAuthenticatedContent() : <Login onLogin={login} />;
 };
 
 export default AddTaheraKhanam;

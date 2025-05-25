@@ -254,8 +254,7 @@ const AddGraphics: NextPage = () => {
     setSelectedCategory(event.target.value);
   };
 
-  if (isAuthenticated) {
-    return (
+ const renderAuthenticatedContent = () => (
       <div style={{ padding: "20px" }} className="text-white">
         <h2 className="text-4xl font-bold custom-font lg:mb-2 mb-8 text-center">
           Automated Insert New Graphics Design
@@ -354,9 +353,8 @@ const AddGraphics: NextPage = () => {
         </div>
       </div>
     );
-  } else {
-    return <Login onLogin={login} />;
-  }
+ 
+  return isAuthenticated ? renderAuthenticatedContent() : <Login onLogin={login} />;
 };
 
 export default AddGraphics;
