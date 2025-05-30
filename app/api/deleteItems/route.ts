@@ -22,7 +22,7 @@ export async function POST(request: Request) {
         });
         break;
       case 'illustration':
-        await prisma.illustration.deleteMany({
+        await prisma.illustrationCard.deleteMany({
           where: { id: { in: ids } }
         });
         break;
