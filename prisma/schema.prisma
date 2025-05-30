@@ -13,7 +13,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
+// Your models should be defined here
 model Art {
   id        String   @id @default(uuid())
   title     String
@@ -305,4 +305,14 @@ model WritingByTC {
 
   @@index([createdAt])
   @@map("writings_by_tc")
+}
+
+model MainPortal {
+  id         String   @id @default(cuid())
+  originalId String
+  type       String   // 'art', 'bookCover', 'poster', 'illustration'
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([originalId, type])
 }

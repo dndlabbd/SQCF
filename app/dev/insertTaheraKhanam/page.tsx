@@ -134,62 +134,117 @@ const AddTaheraKhanam: NextPage = () => {
   };
 
 const renderAuthenticatedContent = () => (
-      <div style={{ padding: "20px" }} className='text-white mt-8'>
-        <div className="lg:grid-cols-2 grid-cols-1 flex flex-col lg:gap-y-6 gap-y-4 items-center justify-center text-black">
-          <h1 className="text-white text-4xl font-bold text-center">Insert Tahera Khanam Content</h1>
-          <div className='text-white text-xl'>{fileName ? fileName : 'No File Uploaded'}</div>
-          <div className="flex flex-row gap-x-4 items-center justify-center">
-            <label className="bg-orange-200 p-2 rounded-sm border border-black w-[10em] cursor-pointer text-center my-auto">
-              Upload
-              <input
-                type="file"
-                accept=".csv"
-                onChange={handleFileChange}
-                style={{ display: 'none' }}
-              />
-            </label>
-            <button
-              className="bg-rose-300 p-2 rounded-sm border border-black w-[10em] text-center mb-2"
-              type="button"
-              style={{ marginTop: "10px" }}
-              onClick={handleSubmit}
-            >
-              Submit
-            </button>
-          </div>
+  <div className="max-w-6xl mx-auto p-8 text-white min-h-screen flex flex-col bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+    <h1 className="text-transparent bg-clip-text bg-gradient-to-r from-orange-300 via-yellow-200 to-orange-300 lg:text-6xl text-4xl font-bold text-center mb-16 animate-fade-in">
+      Upload Tahera Khanam Content
+    </h1>
+
+    <div className="backdrop-blur-md bg-white/10 rounded-3xl p-8 shadow-2xl border border-white/20 transition-all duration-300 hover:shadow-orange-500/10">
+      <div className="flex flex-col space-y-8">
+        <div className="relative group">
+          <label
+            htmlFor="file-upload"
+            className="flex items-center justify-center space-x-4 cursor-pointer bg-gradient-to-r from-orange-500 to-pink-500 text-white font-semibold py-4 px-6 rounded-xl shadow-lg transition-all duration-300 hover:shadow-orange-500/50 hover:scale-[1.02] active:scale-[0.98]"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+            </svg>
+            <span>Select CSV File</span>
+            <input
+              id="file-upload"
+              type="file"
+              accept=".csv"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+          </label>
+          
+          {fileName && (
+            <div className="mt-4 p-4 rounded-lg bg-white/10 border border-white/20">
+              <p className="text-lg text-gray-200 truncate">{fileName}</p>
+            </div>
+          )}
         </div>
 
-        <div className='flex flex-row items-center justify-center my-4'>
-          <label htmlFor="category-select">Choose a category:</label>
-          <select 
-            className='text-black bg-pink-100 mx-2 rounded p-1 border-black border' 
-            id="category-select" 
-            value={selectedCategory} 
+        <div className="flex flex-col space-y-4">
+          <label className="text-lg font-medium text-gray-200">Category:</label>
+          <select
+            value={selectedCategory}
             onChange={handleCategoryChange}
+            className="w-full bg-gray-800 text-white border border-white/20 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all"
           >
-            <option value="paintings">Painting</option>
-            <option value="writings">Writings</option>
+            <option value="paintings" className="bg-gray-800">Paintings</option>
+            <option value="writings" className="bg-gray-800">Writings</option>
           </select>
         </div>
 
-        <div className='p-4'>
-          <div className='text-center pb-4 pt-8'>
-            <Link href="/dev/view"
-              className='text-xl font-bold custom-font bg-indigo-800 text-white p-3 rounded-xl text-center px-6 drop-shadow-lg'
-            >VIEW DATA</Link>
-          </div>
-        </div>
-
-        <div className="fixed right-0 lg:mt-0 mt-4 bottom-0 mr-8">
-          <button
-            className="bg-rose-800 text-white px-4 py-2 rounded-sm border border-black transform mb-4 w-full"
-            onClick={handleLogout}
-          >
-            Logout
-          </button>
-        </div>
+        <button
+          onClick={handleSubmit}
+          disabled={!selectedFile}
+          className={`flex items-center justify-center space-x-2 py-4 px-8 rounded-xl font-semibold shadow-lg transition-all duration-300
+            ${!selectedFile 
+              ? 'bg-gray-600 cursor-not-allowed' 
+              : 'bg-gradient-to-r from-green-500 to-emerald-500 hover:shadow-green-500/50 hover:scale-[1.02] active:scale-[0.98]'
+            }`}
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+          </svg>
+          <span>Upload to Database</span>
+        </button>
       </div>
-    );
+    </div>
+
+    <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+      {/*
+        { href: "/dev/view", text: "VIEW DATA", className: "from-indigo-600 to-blue-600" },
+        { href: "/dev/insertArt", text: "INSERT ART", className: "from-green-600 to-teal-600" },
+        { href: "/dev/insertWritings", text: "INSERT WRITINGS", className: "from-pink-600 to-rose-600" },
+        { href: "/dev/insertGraphics", text: "INSERT GRAPHICS", className: "from-purple-600 to-fuchsia-600" }
+      ].map((link) => (
+        <Link
+          key={link.href}
+          href={link.href}
+          className={`bg-gradient-to-r ${link.className} text-white rounded-xl p-6 text-center font-semibold shadow-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-xl active:scale-[0.98]`}
+        >
+          {link.text}
+        </Link>
+      ))}
+      */}
+      <Link
+        href="/dev/view"
+        className="bg-gradient-to-r from-indigo-600 to-blue-600 text-white rounded-xl p-6 text-center font-semibold shadow-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-xl active:scale-[0.98]"
+      >
+        VIEW DATA
+      </Link>
+      <Link
+        href="/dev/insertArt"
+        className="bg-gradient-to-r from-green-600 to-teal-600 text-white rounded-xl p-6 text-center font-semibold shadow-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-xl active:scale-[0.98]"
+      >
+        INSERT ART
+      </Link>
+      <Link
+        href="/dev/insertWritings"
+        className="bg-gradient-to-r from-pink-600 to-rose-600 text-white rounded-xl p-6 text-center font-semibold shadow-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-xl active:scale-[0.98]"
+      >
+        INSERT WRITINGS
+      </Link>
+      <Link
+        href="/dev/insertGraphics"
+        className="bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white rounded-xl p-6 text-center font-semibold shadow-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-xl active:scale-[0.98]"
+      >
+        INSERT GRAPHICS
+      </Link>
+    </div>
+
+    <button
+      onClick={handleLogout}
+      className="fixed bottom-6 right-6 bg-gradient-to-r from-red-600 to-rose-600 text-white font-bold py-3 px-6 rounded-full shadow-lg transition-all duration-300 hover:shadow-red-500/50 hover:scale-[1.02] active:scale-[0.98]"
+    >
+      Logout
+    </button>
+  </div>
+);
 
   return isAuthenticated ? renderAuthenticatedContent() : <Login onLogin={login} />;
 };

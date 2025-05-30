@@ -8,6 +8,7 @@ import useAuth from "@/hooks/useAuth";
 import { Login } from "@/components/login";
 import Image from "next/image";
 import Link from "next/link";
+import { toast } from "react-hot-toast";
 
 interface Art {
   id: string;
@@ -104,7 +105,6 @@ interface Textiles {
 
 }
 
-
 const ViewArt: NextPage = () => {
   const { isAuthenticated, login, logout } = useAuth();
   const [arts, setArts] = useState<Art[]>([]);
@@ -114,6 +114,7 @@ const ViewArt: NextPage = () => {
   const [refreshKey, setRefreshKey] = useState(0);
   const [artType, setArtType] = useState("art");
   const [category, setCategory] = useState("bookcover");
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchArts = async () => {
@@ -168,309 +169,483 @@ const ViewArt: NextPage = () => {
     setCategory("illustration");
   }
 
-  if (isAuthenticated) {
-    return (
-      <div className="">
-        <div className="flex-row flex justify-between items-center">
-        <h1 className="m-2 text-3xl font-bold text-white">
-          {artType === "art" ? "SQCF ART GALLERY (Viewing Art)" : artType === "graphicsDesign" ? "SQCF ART GALLERY (Viewing Graphics Design)" : ""}
-        </h1>
+  const handleSelect = (id: string) => {
+    setSelectedItems(prev => 
+      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+    );
+  };
+
+  const handleSelectAll = (items: any[]) => {
+    setSelectedItems(prev => 
+      prev.length === items.length ? [] : items.map(item => item.id)
+    );
+  };
+
+  const handleDelete = async () => {
+    if (!selectedItems.length) return;
+    
+    const categoryName = artType === 'art' ? 'Art' : 
+      category === 'bookCover' ? 'Book Cover' :
+      category === 'poster' ? 'Poster' :
+      category === 'illustration' ? 'Illustration' : '';
+    
+    if (confirm(`Are you sure you want to delete ${selectedItems.length} ${categoryName}${selectedItems.length > 1 ? 's' : ''}?`)) {
+      try {
+        const response = await axios.post('/api/deleteItems', {
+          ids: selectedItems,
+          type: artType === 'art' ? 'art' : category
+        });
+        
+        if (response.status === 200) {
+          toast.success(
+            `Successfully deleted ${selectedItems.length} ${categoryName}${selectedItems.length > 1 ? 's' : ''}`
+          );
+          setSelectedItems([]);
+          setRefreshKey(prev => prev + 1);
+        }
+      } catch (error: any) { // Add type annotation for error
+        console.error('Failed to delete items:', error);
+        toast.error(`Failed to delete ${categoryName}s: ${error.message}`);
+      }
+    }
+  };
+
+  const bodyCellClasses = "p-4 border-b border-white/10 text-white/90"; // Common class for table cells
+
+  return isAuthenticated ? (
+    <div className="w-full min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+      <div className="flex flex-col">
+        {/* Header section */}
+        <div className="px-8 py-6">
+          <div className="flex justify-between items-center">
+            <h1 className="text-transparent bg-clip-text bg-gradient-to-r from-orange-300 via-yellow-200 to-orange-300 lg:text-5xl text-3xl font-bold animate-fade-in leading-normal py-1">
+              {artType === "art" ? "Art Gallery" : "Graphics Design Gallery"}
+            </h1>
             <Link
-              href="javascript:void(0);" // Dummy href to satisfy the requirement
+              href="javascript:void(0);"
               onClick={(e) => {
-                e.preventDefault(); // Prevent the default link behavior
-                window.history.back(); // Navigate back to the previous page
+                e.preventDefault();
+                window.history.back();
               }}
-              className="bg-emerald-950 text-white custom-font text-2xl px-4 py-1 rounded drop-shadow-lg mx-4"
+              className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-6 py-2 rounded-xl shadow-lg transition-all duration-300 hover:shadow-emerald-500/50 hover:scale-[1.02] active:scale-[0.98]"
             >
               Back
             </Link>
+          </div>
+
+          {/* Stats Grid */}
+          <div className="mt-6 grid lg:grid-cols-4 grid-cols-2 gap-4">
+            {[
+              { count: arts.length, label: "Art Count", color: "from-orange-500 to-amber-500" },
+              { count: arts.filter(art => art.type === "paintings").length, label: "Paintings", color: "from-rose-500 to-pink-500" },
+              { count: arts.filter(art => art.type === "drawings").length, label: "Drawings", color: "from-green-500 to-emerald-500" },
+              { count: arts.filter(art => art.type === "sketches").length, label: "Sketches", color: "from-amber-500 to-yellow-500" },
+              { count: bookcovers.length + posters.length + illustrations.length, label: "Graphics Design", color: "from-yellow-500 to-lime-500" },
+              { count: bookcovers.length, label: "Book Covers", color: "from-fuchsia-500 to-purple-500" },
+              { count: posters.length, label: "Posters", color: "from-pink-500 to-rose-500" },
+              { count: illustrations.length, label: "Illustrations", color: "from-emerald-500 to-teal-500" }
+            ].map((item, index) => (
+              <div key={index} className={`bg-gradient-to-r ${item.color} rounded-xl p-4 text-white shadow-lg`}>
+                <p className="text-2xl font-bold">{item.count}</p>
+                <p className="text-sm opacity-90">{item.label}</p>
+              </div>
+            ))}
+          </div>
         </div>
-        <hr className="border-b-2 border-white mt-2 mb-4 w-full"></hr>
 
-        {/* Item Counter */}
-        <div className="grid lg:grid-cols-8 grid-cols-2">
-            <h1 className="m-1 text-sm font-bold mx-4 border-2 border-black p-2 shadow-lg bg-orange-100">Art Count: {arts.length}</h1>
-            <h1 className="m-1 text-sm font-bold mx-4 border-2 border-black p-2 shadow-lg bg-rose-100">Painting Count: {arts.filter(art => art.type === "paintings").length}</h1>
-            <h1 className="m-1 text-sm font-bold mx-4 border-2 border-black p-2 shadow-lg bg-green-100">Drawing Count: {arts.filter(art => art.type === "drawings").length}</h1>
-            <h1 className="m-1 text-sm font-bold mx-4 border-2 border-black p-2 shadow-lg bg-amber-100">Sketch Count: {arts.filter(art => art.type === "sketches").length}</h1>
-            <h1 className="m-1 text-sm font-bold mx-4 border-2 border-black p-2 shadow-lg bg-yellow-100">Graphics Design Count: {bookcovers.length + posters.length + illustrations.length}</h1>
-            <h1 className="m-1 text-sm font-bold mx-4 border-2 border-black p-2 shadow-lg bg-fuchsia-100">Book Cover Count: {bookcovers.length}</h1>
-            <h1 className="m-1 text-sm font-bold mx-4 border-2 border-black p-2 shadow-lg bg-pink-100">Poster  Count: {posters.length}</h1>
-            <h1 className="m-1 text-sm font-bold mx-4 border-2 border-black p-2 shadow-lg bg-emerald-100">Illustration & Cards Count: {illustrations.length}</h1>
+        {/* Table Section - Full Width */}
+        <div className="w-full bg-black shadow-2xl border-t border-b border-white/20">
+          <div className="overflow-x-auto px-8">
+            {/* For Art */}
+            {artType === 'art' && (
+              <table className="w-full my-8">
+                <thead className="bg-black sticky top-0 z-10">
+                  <tr className="h-16">
+                    <th className="p-4 text-left text-white font-medium border-b border-white/10 whitespace-nowrap">
+                      <input
+                        type="checkbox"
+                        onChange={() => handleSelectAll(arts)}
+                        checked={selectedItems.length === arts.length && arts.length > 0}
+                        className="w-4 h-4 rounded border-gray-600"
+                      />
+                    </th>
+                    <th className="p-4 text-left text-white font-medium border-b border-white/10 whitespace-nowrap">
+                      Image
+                    </th>
+                    <th className="p-4 text-left text-white font-medium border-b border-white/10 whitespace-nowrap">
+                      ID
+                    </th>
+                    <th className="p-4 text-left text-white font-medium border-b border-white/10 whitespace-nowrap">
+                      Title
+                    </th>
+                    <th className="p-4 text-left text-white font-medium border-b border-white/10 whitespace-nowrap">
+                      Title (Bangla)
+                    </th>
+                    <th className="p-4 text-left text-white font-medium border-b border-white/10 whitespace-nowrap">
+                      Year
+                    </th>
+                    <th className="p-4 text-left text-white font-medium border-b border-white/10 whitespace-nowrap">
+                      Year (Bangla)
+                    </th>
+                    <th className="p-4 text-left text-white font-medium border-b border-white/10 whitespace-nowrap">
+                      Description
+                    </th>
+                    <th className="p-4 text-left text-white font-medium border-b border-white/10 whitespace-nowrap">
+                      Measurement
+                    </th>
+                    <th className="p-4 text-left text-white font-medium border-b border-white/10 whitespace-nowrap">
+                      Measurement (Bangla)
+                    </th>
+                    <th className="p-4 text-left text-white font-medium border-b border-white/10 whitespace-nowrap">
+                      Medium
+                    </th>
+                    <th className="p-4 text-left text-white font-medium border-b border-white/10 whitespace-nowrap">
+                      Medium (Bangla)
+                    </th>
+                    <th className="p-4 text-left text-white font-medium border-b border-white/10 whitespace-nowrap">
+                      Type
+                    </th>
+                    <th className="p-4 text-left text-white font-medium border-b border-white/10 whitespace-nowrap">
+                      Publication
+                    </th>
+                    <th className="p-4 text-left text-white font-medium border-b border-white/10 whitespace-nowrap">
+                      Tags
+                    </th>
+                    <th className="p-4 text-left text-white font-medium border-b border-white/10 whitespace-nowrap">
+                      Tags (Bangla)
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/10 bg-black">
+                  {arts.map((art) => (
+                    <tr key={art.id} className="hover:bg-white/5">
+                      <td className={bodyCellClasses}>
+                        <input
+                          type="checkbox"
+                          checked={selectedItems.includes(art.id)}
+                          onChange={() => handleSelect(art.id)}
+                          className="w-4 h-4 rounded border-gray-600"
+                        />
+                      </td>
+                      <td className={bodyCellClasses}>
+                        <div className="w-[200px]">
+                          <Image src={art.imageUrl} alt={art.title} width={250} height={250} objectFit="contain" className="h-auto w-min-[250px]"/>
+                        </div>
+                      </td>
+                      <td className={bodyCellClasses}>{art.id}</td>
+                      <td className={bodyCellClasses}>{art.title}</td>
+                      <td className={bodyCellClasses}>{art.title_Bangla}</td>
+                      <td className={bodyCellClasses}>{art.year}</td>
+                      <td className={bodyCellClasses}>{art.year_Bangla}</td>
+                      <td className={bodyCellClasses}>{art.description}</td>
+                      <td className={bodyCellClasses}>{art.measurement}</td>
+                      <td className={bodyCellClasses}>{art.measurement_Bangla}</td>
+                      <td className={bodyCellClasses}>{art.medium}</td>
+                      <td className={bodyCellClasses}>{art.medium_Bangla}</td>
+                      <td className={bodyCellClasses}>{art.type}</td>
+                      <td className={bodyCellClasses}>{art.publication}</td>
+                      <td className={bodyCellClasses}>{art.tags.join(", ")}</td>
+                      <td className={bodyCellClasses}>{art.tags_Bangla.join(", ")}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+
+            {/* Book Covers Table */}
+            {artType === 'graphicsDesign' && category === 'bookCover' && (
+              <table className="w-full my-8">
+                <thead className="bg-black sticky top-0">
+                  <tr>
+                    <th className="p-4 text-left text-gray-100 font-medium border-b border-white/10 whitespace-nowrap">
+                      <input
+                        type="checkbox"
+                        onChange={() => handleSelectAll(bookcovers)}
+                        checked={selectedItems.length === bookcovers.length && bookcovers.length > 0}
+                        className="w-4 h-4 rounded border-gray-600"
+                      />
+                    </th>
+                    <th className="p-4 text-left text-gray-100 font-medium border-b border-white/10 whitespace-nowrap">
+                      Image
+                    </th>
+                    <th className="p-4 text-left text-gray-100 font-medium border-b border-white/10 whitespace-nowrap">
+                      ID
+                    </th>
+                    <th className="p-4 text-left text-gray-100 font-medium border-b border-white/10 whitespace-nowrap">
+                      Title
+                    </th>
+                    <th className="p-4 text-left text-gray-100 font-medium border-b border-white/10 whitespace-nowrap">
+                      Author
+                    </th>
+                    <th className="p-4 text-left text-gray-100 font-medium border-b border-white/10 whitespace-nowrap">
+                      Publisher
+                    </th>
+                    <th className="p-4 text-left text-gray-100 font-medium border-b border-white/10 whitespace-nowrap">
+                      Date
+                    </th>
+                    <th className="p-4 text-left text-gray-100 font-medium border-b border-white/10 whitespace-nowrap">
+                      Type
+                    </th>
+                    <th className="p-4 text-left text-gray-100 font-medium border-b border-white/10 whitespace-nowrap">
+                      Tags
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/10">
+                  {bookcovers.map((cover) => (
+                    <tr key={cover.id} className="hover:bg-white/5 bg-black/80">
+                      <td className={bodyCellClasses}>
+                        <input
+                          type="checkbox"
+                          checked={selectedItems.includes(cover.id)}
+                          onChange={() => handleSelect(cover.id)}
+                          className="w-4 h-4 rounded border-gray-600"
+                        />
+                      </td>
+                      <td className={bodyCellClasses}>
+                        <div className="w-[200px]">
+                          <Image src={cover.imageUrl} alt={cover.title} width={250} height={250} objectFit="contain" className="h-auto w-min-[250px]"/>
+                        </div>
+                      </td>
+                      <td className={bodyCellClasses}>{cover.id}</td>
+                      <td className={bodyCellClasses}>{cover.title}</td>
+                      <td className={bodyCellClasses}>{cover.author}</td>
+                      <td className={bodyCellClasses}>{cover.publisher}</td>
+                      <td className={bodyCellClasses}>{cover.date}</td>
+                      <td className={bodyCellClasses}>{cover.type}</td>
+                      <td className={bodyCellClasses}>{cover.tags.join(", ")}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+
+            {/* Posters Table */}
+            {artType === 'graphicsDesign' && category === 'poster' && (
+              <table className="w-full my-8">
+                <thead className="bg-black sticky top-0">
+                  <tr>
+                    <th className="p-4 text-left text-gray-100 font-medium border-b border-white/10 whitespace-nowrap">
+                      <input
+                        type="checkbox"
+                        onChange={() => handleSelectAll(posters)}
+                        checked={selectedItems.length === posters.length && posters.length > 0}
+                        className="w-4 h-4 rounded border-gray-600"
+                      />
+                    </th>
+                    <th className="p-4 text-left text-gray-100 font-medium border-b border-white/10 whitespace-nowrap">
+                      Image
+                    </th>
+                    <th className="p-4 text-left text-gray-100 font-medium border-b border-white/10 whitespace-nowrap">
+                      ID
+                    </th>
+                    <th className="p-4 text-left text-gray-100 font-medium border-b border-white/10 whitespace-nowrap">
+                      Title
+                    </th>
+                    <th className="p-4 text-left text-gray-100 font-medium border-b border-white/10 whitespace-nowrap">
+                      Title (Bangla)
+                    </th>
+                    <th className="p-4 text-left text-gray-100 font-medium border-b border-white/10 whitespace-nowrap">
+                      Year
+                    </th>
+                    <th className="p-4 text-left text-gray-100 font-medium border-b border-white/10 whitespace-nowrap">
+                      Year (Bangla)
+                    </th>
+                    <th className="p-4 text-left text-gray-100 font-medium border-b border-white/10 whitespace-nowrap">
+                      Description
+                    </th>
+                    <th className="p-4 text-left text-gray-100 font-medium border-b border-white/10 whitespace-nowrap">
+                      Width
+                    </th>
+                    <th className="p-4 text-left text-gray-100 font-medium border-b border-white/10 whitespace-nowrap">
+                      Height
+                    </th>
+                    <th className="p-4 text-left text-gray-100 font-medium border-b border-white/10 whitespace-nowrap">
+                      Tags
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/10">
+                  {posters.map((poster) => (
+                    <tr key={poster.id} className="hover:bg-white/5 bg-black/80">
+                      <td className={bodyCellClasses}>
+                        <input
+                          type="checkbox"
+                          checked={selectedItems.includes(poster.id)}
+                          onChange={() => handleSelect(poster.id)}
+                          className="w-4 h-4 rounded border-gray-600"
+                        />
+                      </td>
+                      <td className={bodyCellClasses}>
+                        <div className="w-[200px]">
+                          <Image src={poster.imageUrl} alt={poster.title} width={250} height={250} objectFit="contain" className="h-auto w-min-[250px]"/>
+                        </div>
+                      </td>
+                      <td className={bodyCellClasses}>{poster.id}</td>
+                      <td className={bodyCellClasses}>{poster.title}</td>
+                      <td className={bodyCellClasses}>{poster.title_Bangla}</td>
+                      <td className={bodyCellClasses}>{poster.year}</td>
+                      <td className={bodyCellClasses}>{poster.year_Bangla}</td>
+                      <td className={bodyCellClasses}>{poster.description}</td>
+                      <td className={bodyCellClasses}>{poster.width}</td>
+                      <td className={bodyCellClasses}>{poster.height}</td>
+                      <td className={bodyCellClasses}>{poster.tags.join(", ")}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+
+            {/* Illustrations Table */}
+            {artType === 'graphicsDesign' && category === 'illustration' && (
+              <table className="w-full my-8">
+                <thead className="bg-black sticky top-0">
+                  <tr>
+                    <th className="p-4 text-left text-gray-100 font-medium border-b border-white/10 whitespace-nowrap">
+                      <input
+                        type="checkbox"
+                        onChange={() => handleSelectAll(illustrations)}
+                        checked={selectedItems.length === illustrations.length && illustrations.length > 0}
+                        className="w-4 h-4 rounded border-gray-600"
+                      />
+                    </th>
+                    <th className="p-4 text-left text-gray-100 font-medium border-b border-white/10 whitespace-nowrap">
+                      Image
+                    </th>
+                    <th className="p-4 text-left text-gray-100 font-medium border-b border-white/10 whitespace-nowrap">
+                      ID
+                    </th>
+                    <th className="p-4 text-left text-gray-100 font-medium border-b border-white/10 whitespace-nowrap">
+                      Title
+                    </th>
+                    <th className="p-4 text-left text-gray-100 font-medium border-b border-white/10 whitespace-nowrap">
+                      Title (Bangla)
+                    </th>
+                    <th className="p-4 text-left text-gray-100 font-medium border-b border-white/10 whitespace-nowrap">
+                      Subtitle
+                    </th>
+                    <th className="p-4 text-left text-gray-100 font-medium border-b border-white/10 whitespace-nowrap">
+                      Subtitle (Bangla)
+                    </th>
+                    <th className="p-4 text-left text-gray-100 font-medium border-b border-white/10 whitespace-nowrap">
+                      Publisher
+                    </th>
+                    <th className="p-4 text-left text-gray-100 font-medium border-b border-white/10 whitespace-nowrap">
+                      Publisher (Bangla)
+                    </th>
+                    <th className="p-4 text-left text-gray-100 font-medium border-b border-white/10 whitespace-nowrap">
+                      Year
+                    </th>
+                    <th className="p-4 text-left text-gray-100 font-medium border-b border-white/10 whitespace-nowrap">
+                      Year (Bangla)
+                    </th>
+                    <th className="p-4 text-left text-gray-100 font-medium border-b border-white/10 whitespace-nowrap">
+                      Description
+                    </th>
+                    <th className="p-4 text-left text-gray-100 font-medium border-b border-white/10 whitespace-nowrap">
+                      Tags
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/10">
+                  {illustrations.map((illustration) => (
+                    <tr key={illustration.id} className="hover:bg-white/5 bg-black/80">
+                      <td className={bodyCellClasses}>
+                        <input
+                          type="checkbox"
+                          checked={selectedItems.includes(illustration.id)}
+                          onChange={() => handleSelect(illustration.id)}
+                          className="w-4 h-4 rounded border-gray-600"
+                        />
+                      </td>
+                      <td className={bodyCellClasses}>
+                        <div className="w-[200px]">
+                          <Image src={illustration.imageUrl} alt={illustration.title} width={250} height={250} objectFit="contain" className="h-auto w-min-[250px]"/>
+                        </div>
+                      </td>
+                      <td className={bodyCellClasses}>{illustration.id}</td>
+                      <td className={bodyCellClasses}>{illustration.title}</td>
+                      <td className={bodyCellClasses}>{illustration.title_Bangla}</td>
+                      <td className={bodyCellClasses}>{illustration.subtitle}</td>
+                      <td className={bodyCellClasses}>{illustration.subtitle_Bangla}</td>
+                      <td className={bodyCellClasses}>{illustration.publisher}</td>
+                      <td className={bodyCellClasses}>{illustration.publisher_Bangla}</td>
+                      <td className={bodyCellClasses}>{illustration.year}</td>
+                      <td className={bodyCellClasses}>{illustration.year_Bangla}</td>
+                      <td className={bodyCellClasses}>{illustration.description}</td>
+                      <td className={bodyCellClasses}>{illustration.tags.join(", ")}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
         </div>
 
-        {/* For Art */}
-        {artType == 'art' && (
-        <div className="overflow-x-scroll m-4 border-4 border-zinc-500 h-[75dvh]">
-          <table className="bg-slate-200 min-w-full ">
-            <thead className="text-left align-top border-2">
-              <tr>
-                <th className="border-2 border-black px-4 py-2">Image</th>
-                <th className="border-2 border-black px-4 py-2">ID</th>
-                <th className="border-2 border-black px-4 py-2">Title</th>
-                <th className="border-2 border-black px-4 py-2">
-                  Title (Bangla)
-                </th>
-                <th className="border-2 border-black px-4 py-2">Year</th>
-                <th className="border-2 border-black px-4 py-2">
-                  Year (Bangla)
-                </th>
-                <th className="border-2 border-black px-4 py-2">Image URL</th>
-                <th className="border-2 border-black px-4 py-2">Description</th>
-                <th className="border-2 border-black px-4 py-2">Measurement</th>
-                <th className="border-2 border-black px-4 py-2">
-                  Measurement_Bangla
-                </th>
-                <th className="border-2 border-black px-4 py-2">Medium</th>
-                <th className="border-2 border-black px-4 py-2">
-                  Medium (Bangla)
-                </th>
-                <th className="border-2 border-black px-4 py-2">Type</th>
-                <th className="border-2 border-black px-4 py-2">Publication</th>
-                <th className="border-2 border-black px-4 py-2">Tags</th>
-                <th className="border-2 border-black px-4 py-2">
-                  Tags (Bangla)
-                </th>
-              </tr>
-            </thead>
-            <tbody className="text-left bg-slate-50">
-              {arts.map((art) => (
-                <tr key={art.id}>
-                  <td className="border-2 border-black p-4"><div className="w-[200px]"><Image src={art.imageUrl} alt={art.title} width={250} height={250} objectFit="contain" className="h-auto w-min-[250px]"/></div></td>
-
-                  <td className="border-2 border-black px-4 py-1"><div className="h-max-[20rem] h-min-fit w-min-fit w-max-[25rem]">{art.id}</div></td>
-                  <td className="border-2 border-black px-4 py-1"><div className="h-max-[20rem] h-min-fit w-min-fit w-max-[25rem]">{art.title}</div></td>
-                  <td className="border-2 border-black px-4 py-1"><div className="h-max-[20rem] h-min-fit w-min-fit w-max-[25rem]">{art.title_Bangla}</div></td>
-                  <td className="border-2 border-black px-4 py-1"><div className="h-max-[20rem] h-min-fit w-min-fit w-max-[25rem]">{art.year}</div></td>
-                  <td className="border-2 border-black px-4 py-1"><div className="h-max-[20rem] h-min-fit w-min-fit w-max-[25rem]">{art.year_Bangla}</div></td>
-                  <td className="border-2 border-black px-4 py-1"><div className="h-max-[20rem] h-min-fit w-min-fit w-max-[25rem]">{art.imageUrl}</div></td>
-                  <td className="border-2 border-black px-4 py-1"><div className="h-max-[20rem] h-min-fit w-min-fit w-max-[25rem] text-justify">{art.description}</div></td>
-                  <td className="border-2 border-black px-4 py-1"><div className="h-max-[20rem] h-min-fit w-min-fit w-max-[25rem]">{art.measurement}</div></td>
-                  <td className="border-2 border-black px-4 py-1"><div className="h-max-[20rem] h-min-fit w-min-fit w-max-[25rem]">{art.measurement_Bangla}</div></td>
-                  <td className="border-2 border-black px-4 py-1"><div className="h-max-[20rem] h-min-fit w-min-fit w-max-[25rem]">{art.medium}</div></td>
-                  <td className="border-2 border-black px-4 py-1"><div className="h-max-[20rem] h-min-fit w-min-fit w-max-[25rem]">{art.medium_Bangla}</div></td>
-                  <td className="border-2 border-black px-4 py-1"><div className="h-max-[20rem] h-min-fit w-min-fit w-max-[25rem]">{art.type}</div></td>
-                  <td className="border-2 border-black px-4 py-1"><div className="h-max-[20rem] h-min-fit w-min-fit w-max-[25rem]">{art.publication}</div></td>
-                  <td className="border-2 border-black px-4 py-1"><div className="h-max-[20rem] h-min-fit w-min-fit w-max-[25rem]">{art.tags.join(", ")}</div></td>
-                  <td className="border-2 border-black px-4 py-1"><div className="h-max-[20rem] h-min-fit w-min-fit w-max-[25rem]">{art.tags_Bangla.join(", ")}</div></td>
-                </tr>
+        {/* Bottom Controls */}
+        <div className="px-8 py-6">
+          {/* Category buttons for graphics design */}
+          {artType === 'graphicsDesign' && (
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+              {[
+                { text: "Book Covers", onClick: handleCover, color: "from-lime-600 to-green-600" },
+                { text: "Posters", onClick: handlePoster, color: "from-green-600 to-emerald-600" },
+                { text: "Illustrations", onClick: handleIllustration, color: "from-emerald-600 to-teal-600" }
+              ].map((button, index) => (
+                <button
+                  key={index}
+                  onClick={button.onClick}
+                  className={`bg-gradient-to-r ${button.color} text-white py-3 px-6 rounded-xl font-semibold shadow-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]`}
+                >
+                  {button.text}
+                </button>
               ))}
-            </tbody>
-          </table>
+            </div>
+          )}
+
+          {/* Navigation buttons */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {[
+              { text: "View Art", onClick: handleArt, color: "from-zinc-600 to-gray-600" },
+              { text: "View Graphics", onClick: handleGraphicsDesign, color: "from-gray-600 to-slate-600" },
+              { text: "Refresh", onClick: handlerefresh, color: "from-sky-600 to-blue-600" },
+              { text: "Logout", onClick: handleSubmit2, color: "from-red-600 to-rose-600" }
+            ].map((button, index) => (
+              <button
+                key={index}
+                onClick={button.onClick}
+                className={`bg-gradient-to-r ${button.color} text-white py-3 px-6 rounded-xl font-semibold shadow-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]`}
+              >
+                {button.text}
+              </button>
+            ))}
+          </div>
         </div>
-        )}
 
-        {/* For Book Covers */}
-        {artType === 'graphicsDesign' && category === 'bookCover' && (
-          <div className="overflow-x-scroll m-4 border-4 border-black h-[75dvh]">
-            <table className="bg-slate-200 min-w-full ">
-              <thead className="text-left align-top border-2">
-                <tr>
-                  <th className="border-2 border-black px-4 py-2">Image</th>
-                  <th className="border-2 border-black px-4 py-2">ID</th>
-                  <th className="border-2 border-black px-4 py-2">Title</th>
-                  <th className="border-2 border-black px-4 py-2">Publication Date</th>
-                  <th className="border-2 border-black px-4 py-2">Image URL</th>
-                  <th className="border-2 border-black px-4 py-2">Author</th>
-                  <th className="border-2 border-black px-4 py-2">Publisher</th>
-                  <th className="border-2 border-black px-4 py-2">Type</th>
-                  <th className="border-2 border-black px-4 py-2">
-                  Type (Bangla)
-                  </th>
-                  <th className="border-2 border-black px-4 py-2">Tags</th>
-                  <th className="border-2 border-black px-4 py-2">
-                    Tags (Bangla)
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="text-left bg-slate-50">
-                {bookcovers.map((bookcover) => (
-                  <tr key={bookcover.id}>
-                    <td className="border-2 border-black p-4"><div className="w-[200px]"><Image src={bookcover.imageUrl} alt={bookcover.title} width={250} height={250} objectFit="contain" className="h-auto w-min-[250px]"/></div></td>
-
-                    <td className="border-2 border-black px-4 py-1"><div className="h-max-[20rem] h-min-fit w-min-fit w-max-[25rem]">{bookcover.id}</div></td>
-                    <td className="border-2 border-black px-4 py-1"><div className="h-max-[20rem] h-min-fit w-min-fit w-max-[25rem]">{bookcover.title}</div></td>
-                    <td className="border-2 border-black px-4 py-1"><div className="h-max-[20rem] h-min-fit w-min-fit w-max-[25rem]">{bookcover.date}</div></td>
-                    <td className="border-2 border-black px-4 py-1"><div className="h-max-[20rem] h-min-fit w-min-fit w-max-[25rem]">{bookcover.imageUrl}</div></td>
-                    <td className="border-2 border-black px-4 py-1"><div className="h-max-[20rem] h-min-fit w-min-fit w-max-[25rem]">{bookcover.author}</div></td>
-                    <td className="border-2 border-black px-4 py-1"><div className="h-max-[20rem] h-min-fit w-min-fit w-max-[25rem]">{bookcover.publisher}</div></td>
-                    <td className="border-2 border-black px-4 py-1"><div className="h-max-[20rem] h-min-fit w-min-fit w-max-[25rem]">{bookcover.type}</div></td>
-                    <td className="border-2 border-black px-4 py-1"><div className="h-max-[20rem] h-min-fit w-min-fit w-max-[25rem]">{bookcover.type_Bangla}</div></td>
-                    <td className="border-2 border-black px-4 py-1"><div className="h-max-[20rem] h-min-fit w-min-fit w-max-[25rem]">{bookcover.tags.join(", ")}</div></td>
-                    <td className="border-2 border-black px-4 py-1"><div className="h-max-[20rem] h-min-fit w-min-fit w-max-[25rem]">{bookcover.tags_Bangla.join(", ")}</div></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        {/* Delete button that appears when items are selected */}
+        {selectedItems.length > 0 && (
+          <div className="fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-red-600 text-white px-6 py-3 rounded-full shadow-lg z-50">
+            <button 
+              onClick={handleDelete}
+              className="flex items-center space-x-2"
+            >
+              <span>Delete {selectedItems.length} items</span>
+            </button>
           </div>
         )}
 
-        {/* For Posters */}
-        {artType === 'graphicsDesign' && category === 'poster' && (
-          <div className="overflow-x-scroll m-4 border-4 border-black h-[75dvh]">
-            <table className="bg-slate-200 min-w-full ">
-              <thead className="text-left align-top border-2">
-                <tr>
-                  <th className="border-2 border-black px-4 py-2">Image</th>
-                  <th className="border-2 border-black px-4 py-2">ID</th>
-                  <th className="border-2 border-black px-4 py-2">Title</th>
-                  <th className="border-2 border-black px-4 py-2">
-                    Title (Bangla)
-                  </th>
-                  <th className="border-2 border-black px-4 py-2">Year</th>
-                  <th className="border-2 border-black px-4 py-2">
-                  Year (Bangla)
-                  </th>
-                  <th className="border-2 border-black px-4 py-2">Image URL</th>
-                  <th className="border-2 border-black px-4 py-2">Description</th>
-                  <th className="border-2 border-black px-4 py-2">For Whom</th>
-                  <th className="border-2 border-black px-4 py-2">Width</th>
-                  <th className="border-2 border-black px-4 py-2">Height</th>
-                  <th className="border-2 border-black px-4 py-2">Category</th>
-                  <th className="border-2 border-black px-4 py-2">Tags</th>
-                  <th className="border-2 border-black px-4 py-2">
-                    Tags (Bangla)
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="text-left bg-slate-50">
-                {posters.map((poster) => (
-                  <tr key={poster.id}>
-                    <td className="border-2 border-black p-4"><div className="w-[200px]"><Image src={poster.imageUrl} alt={poster.title} width={250} height={250} objectFit="contain" className="h-auto w-min-[250px]"/></div></td>
-
-                    <td className="border-2 border-black px-4 py-1"><div className="h-max-[20rem] h-min-fit w-min-fit w-max-[25rem]">{poster.id}</div></td>
-                    <td className="border-2 border-black px-4 py-1"><div className="h-max-[20rem] h-min-fit w-min-fit w-max-[25rem]">{poster.title}</div></td>
-                    <td className="border-2 border-black px-4 py-1"><div className="h-max-[20rem] h-min-fit w-min-fit w-max-[25rem]">{poster.title_Bangla}</div></td>
-                    <td className="border-2 border-black px-4 py-1"><div className="h-max-[20rem] h-min-fit w-min-fit w-max-[25rem]">{poster.year}</div></td>
-                    <td className="border-2 border-black px-4 py-1"><div className="h-max-[20rem] h-min-fit w-min-fit w-max-[25rem]">{poster.year_Bangla}</div></td>
-                    <td className="border-2 border-black px-4 py-1"><div className="h-max-[20rem] h-min-fit w-min-fit w-max-[25rem]">{poster.imageUrl}</div></td>
-                    <td className="border-2 border-black px-4 py-1"><div className="h-max-[20rem] h-min-fit w-min-fit w-max-[25rem] text-justify">{poster.description}</div></td>
-                    <td className="border-2 border-black px-4 py-1"><div className="h-max-[20rem] h-min-fit w-min-fit w-max-[25rem]">{poster.for_whom}</div></td>
-                    <td className="border-2 border-black px-4 py-1"><div className="h-max-[20rem] h-min-fit w-min-fit w-max-[25rem]">{poster.width}</div></td>
-                    <td className="border-2 border-black px-4 py-1"><div className="h-max-[20rem] h-min-fit w-min-fit w-max-[25rem]">{poster.height}</div></td>
-                    <td className="border-2 border-black px-4 py-1"><div className="h-max-[20rem] h-min-fit w-min-fit w-max-[25rem]">{poster.category}</div></td>
-                    <td className="border-2 border-black px-4 py-1"><div className="h-max-[20rem] h-min-fit w-min-fit w-max-[25rem]">{poster.tags.join(", ")}</div></td>
-                    <td className="border-2 border-black px-4 py-1"><div className="h-max-[20rem] h-min-fit w-min-fit w-max-[25rem]">{poster.tags_Bangla.join(", ")}</div></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {/* For Illustrations */}
-        {artType === 'graphicsDesign' && category === 'illustration' && (
-          <div className="overflow-x-scroll m-4 border-4 border-black h-[75dvh]">
-            <table className="bg-slate-200 min-w-full ">
-              <thead className="text-left align-top border-2">
-                <tr>
-                  <th className="border-2 border-black px-4 py-2">Image</th>
-                  <th className="border-2 border-black px-4 py-2">ID</th>
-                  <th className="border-2 border-black px-4 py-2">Title</th>
-                  <th className="border-2 border-black px-4 py-2">
-                    Title (Bangla)
-                  </th>
-                  <th className="border-2 border-black px-4 py-2">Year</th>
-                  <th className="border-2 border-black px-4 py-2">
-                  Year (Bangla)
-                  </th>
-                  <th className="border-2 border-black px-4 py-2">Image URL</th>
-                  <th className="border-2 border-black px-4 py-2">Description</th>
-                  <th className="border-2 border-black px-4 py-2">Sub Title</th>
-                  <th className="border-2 border-black px-4 py-2">
-                  Sub Title (Bangla)
-                  </th>
-                  <th className="border-2 border-black px-4 py-2">Publisher</th>
-                  <th className="border-2 border-black px-4 py-2">
-                  Publisher (Bangla)
-                  </th>
-                  <th className="border-2 border-black px-4 py-2">Tags</th>
-                  <th className="border-2 border-black px-4 py-2">
-                    Tags (Bangla)
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="text-left bg-slate-50">
-                {illustrations.map((illustration) => (
-                  <tr key={illustration.id}>
-                    <td className="border-2 border-black p-4"><div className="w-[200px]"><Image src={illustration.imageUrl} alt={illustration.title} width={250} height={250} objectFit="contain" className="h-auto w-min-[250px]"/></div></td>
-
-                    <td className="border-2 border-black px-4 py-1"><div className="h-max-[20rem] h-min-fit w-min-fit w-max-[25rem]">{illustration.id}</div></td>
-                    <td className="border-2 border-black px-4 py-1"><div className="h-max-[20rem] h-min-fit w-min-fit w-max-[25rem]">{illustration.title}</div></td>
-                    <td className="border-2 border-black px-4 py-1"><div className="h-max-[20rem] h-min-fit w-min-fit w-max-[25rem]">{illustration.title_Bangla}</div></td>
-                    <td className="border-2 border-black px-4 py-1"><div className="h-max-[20rem] h-min-fit w-min-fit w-max-[25rem]">{illustration.year}</div></td>
-                    <td className="border-2 border-black px-4 py-1"><div className="h-max-[20rem] h-min-fit w-min-fit w-max-[25rem]">{illustration.year_Bangla}</div></td>
-                    <td className="border-2 border-black px-4 py-1"><div className="h-max-[20rem] h-min-fit w-min-fit w-max-[25rem]">{illustration.imageUrl}</div></td>
-                    <td className="border-2 border-black px-4 py-1"><div className="h-max-[20rem] h-min-fit w-min-fit w-max-[25rem] text-justify">{illustration.description}</div></td>
-                    <td className="border-2 border-black px-4 py-1"><div className="h-max-[20rem] h-min-fit w-min-fit w-max-[25rem]">{illustration.subtitle}</div></td>
-                    <td className="border-2 border-black px-4 py-1"><div className="h-max-[20rem] h-min-fit w-min-fit w-max-[25rem]">{illustration.subtitle_Bangla}</div></td>
-                    <td className="border-2 border-black px-4 py-1"><div className="h-max-[20rem] h-min-fit w-min-fit w-max-[25rem]">{illustration.publisher}</div></td>
-                    <td className="border-2 border-black px-4 py-1"><div className="h-max-[20rem] h-min-fit w-min-fit w-max-[25rem]">{illustration.publisher_Bangla}</div></td>
-                    <td className="border-2 border-black px-4 py-1"><div className="h-max-[20rem] h-min-fit w-min-fit w-max-[25rem]">{illustration.tags.join(", ")}</div></td>
-                    <td className="border-2 border-black px-4 py-1"><div className="h-max-[20rem] h-min-fit w-min-fit w-max-[25rem]">{illustration.tags_Bangla.join(", ")}</div></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {artType == 'graphicsDesign' && (
-        <div className="mt-4 grid lg:grid-cols-3 gird-cols-1 mx-4">
+        {/* Logout Button */}
         <button
-            className="bg-lime-800 text-white p-2 rounded-sm border border-black transform mb-4 w-[95%] drop-shadow-lg"
-            onClick={handleCover}
-          >
-            Book Covers
-          </button>
-          <button
-            className="bg-green-800 text-white p-2 rounded-sm border border-black transform mb-4 w-[95%] drop-shadow-lg"
-            onClick={handlePoster}
-          >
-            Posters
-          </button>
-          <button
-            className="bg-lime-600 text-white p-2 rounded-sm border border-black transform mb-4 w-[95%] drop-shadow-lg"
-            onClick={handleIllustration}
-          >
-            Illustrations
-          </button>
-        </div>
-        )}
-
-        <div className="mt-4 grid lg:grid-cols-4 gird-cols-2 mx-4">
-        <button
-            className="bg-zinc-800 text-white p-2 rounded-sm border border-black transform mb-4 w-[95%] drop-shadow-lg"
-            onClick={handleArt}
-          >
-            View Art
-          </button>
-          <button
-            className="bg-gray-800 text-white p-2 rounded-sm border border-black transform mb-4 w-[95%] drop-shadow-lg"
-            onClick={handleGraphicsDesign}
-          >
-            View Graphics Design
-          </button>
-          <button
-            className="bg-sky-800 text-white p-2 rounded-sm border border-black transform mb-4 w-[95%] drop-shadow-lg"
-            onClick={handlerefresh}
-          >
-            Refresh
-          </button>
-          <button
-            className="bg-rose-800 text-white p-2 rounded-sm border border-black transform mb-4 w-[95%] drop-shadow-lg"
-            onClick={handleSubmit2}
-          >
-            Logout
-          </button>
-        </div>
-
+          onClick={handleSubmit2}
+          className="fixed bottom-6 right-6 bg-gradient-to-r from-red-600 to-rose-600 text-white font-bold py-3 px-6 rounded-full shadow-lg transition-all duration-300 hover:shadow-red-500/50 hover:scale-[1.02] active:scale-[0.98]"
+        >
+          Logout
+        </button>
       </div>
-    );
-  } else {
-    return <Login onLogin={login} />;
-  }
+    </div>
+  ) : (
+    <Login onLogin={login} />
+  );
 };
 
 export default ViewArt;
