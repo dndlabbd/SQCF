@@ -316,3 +316,12 @@ model MainPortal {
 
   @@index([originalId, type])
 }
+
+model TaheraKhanam {
+  id          String   @id @default(cuid())
+  imageUrl    String
+  title       String
+  title_Bangla String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
