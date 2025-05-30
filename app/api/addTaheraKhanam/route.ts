@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import prisma from '#root/lib/prisma';
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const taheraKhanam = await prisma.taheraKhanam.create({
+    const taheraKhanam = await prisma.taheraArt.create({
       data: body
     });
     return NextResponse.json(taheraKhanam);
