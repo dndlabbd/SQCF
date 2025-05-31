@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import HTMLFlipBook, {HTMLFlipBookProps} from "react-pageflip";
+import HTMLFlipBook, { HTMLFlipBookProps } from "react-pageflip";
 
 interface CatalogItem {
   title: string;
@@ -119,12 +119,19 @@ const FlipBookItem = ({ item, isModal = false }: FlipBookItemProps) => {
       <HTMLFlipBook
         width={isModal ? 700 : 300}
         height={isModal ? 500 : 400}
-          maxWidth={isModal ? 700 : 300}
-  minWidth={200}
-  maxHeight={isModal ? 500 : 400}
-  minHeight={400}
+        maxWidth={isModal ? 700 : 300}
+        minWidth={200}
+        maxHeight={isModal ? 500 : 400}
+        minHeight={400}
         // showSwipeHint={true}
         className="rounded-lg"
+        style={{ margin: "auto" }}
+        startPage={0}
+        size="fixed"
+        drawShadow={true}
+        maxShadowOpacity={0.5}
+        showCover={true}
+        mobileScrollSupport={true}
       >
         {pages.map((page, index) => (
           <div
