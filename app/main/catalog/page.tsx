@@ -12,7 +12,8 @@ interface CatalogItem {
   title: string;
   imageUrl: string;
   description: string;
-  pages?: { content: React.ReactNode }[];
+  // pages?: { content: React.ReactNode }[];
+  pages?: string[]; // expect array of image URLs here
 }
 
 export default function CatalogPage() {

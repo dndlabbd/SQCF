@@ -137,8 +137,10 @@ const FlipBookItem = ({ item, isModal = false }: FlipBookItemProps) => {
         startZIndex={0} // stacking context
         autoSize={false} // disable automatic resizing
         swipeDistance={30} // required swipe distance to flip
-        swipeAngle={35}
-        
+        clickEventForward={false} // forward click events to children
+        useMouseEvents={true} // enable mouse events
+        showPageCorners={true} // show corners on pages
+        disableFlipByClick={false} // allow flipping by click
       >
         {pages.map((page, index) => (
           <div
