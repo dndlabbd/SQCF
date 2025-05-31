@@ -132,6 +132,13 @@ const FlipBookItem = ({ item, isModal = false }: FlipBookItemProps) => {
         maxShadowOpacity={0.5}
         showCover={true}
         mobileScrollSupport={true}
+        flippingTime={600} // animation duration in ms
+        usePortrait={false} // flipbook orientation
+        startZIndex={0} // stacking context
+        autoSize={false} // disable automatic resizing
+        swipeDistance={30} // required swipe distance to flip
+        swipeAngle={35}
+        
       >
         {pages.map((page, index) => (
           <div
