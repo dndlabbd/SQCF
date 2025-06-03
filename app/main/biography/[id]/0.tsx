@@ -9,15 +9,23 @@ export default function BiographySection0() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    document.body.style.backgroundColor = "black"; // Add this line
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 2500); // Match content page loading time
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      document.body.style.backgroundColor = ""; // Clean up
+    };
   }, []);
 
   if (isLoading) {
-    return <LoadingScreen />;
+    return (
+      <div className="bg-black min-h-screen">
+        <LoadingScreen />
+      </div>
+    );
   }
 
   return (
@@ -72,12 +80,16 @@ export default function BiographySection0() {
             </p>
           </div>
         </div>
-        
+
         {/* Navigation Buttons */}
         <div className="flex justify-between items-center mt-8">
-          <a href="/main/biography" className="text-gray-400 hover:text-white">← Previous Page</a>
+          <a href="/main/biography" className="text-gray-400 hover:text-white">
+            ← Previous Page
+          </a>
           <p>Page: 1 of 4</p>
-          <a href="/main/biography/1" className="text-gray-400 hover:text-white">Next Page →</a>
+          <a href="/main/biography/1" className="text-gray-400 hover:text-white">
+            Next Page →
+          </a>
         </div>
       </div>
     </main>

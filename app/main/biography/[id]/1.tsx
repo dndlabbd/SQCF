@@ -9,15 +9,23 @@ export default function BiographySection1() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    document.body.style.backgroundColor = "black";
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 2500);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      document.body.style.backgroundColor = "";
+    };
   }, []);
 
   if (isLoading) {
-    return <LoadingScreen />;
+    return (
+      <div className="bg-black min-h-screen">
+        <LoadingScreen />
+      </div>
+    );
   }
 
   return (
