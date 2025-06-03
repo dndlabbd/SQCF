@@ -1,10 +1,25 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Navbar from "@/components/navbar";
+import LoadingScreen from "@/components/LoadingScreen";
 
 export default function BiographySection0() {
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 2500); // Match content page loading time
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
+
   return (
     <main className="min-h-screen bg-black text-white py-12 px-6">
       <nav className="bg-black text-white shadow-md fixed top-0 left-0 w-full z-50">

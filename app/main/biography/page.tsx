@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/navbar";
-import Link from "next/link";
+import LoadingScreen from "@/components/LoadingScreen";
 
 type Section = {
   title: string;
@@ -35,7 +35,13 @@ export default function BiographyPage() {
         setIsLoading(false);
       }
     };
-    fetchSections();
+    
+    // Add timeout to match content page loading time
+    const fetchTimeout = setTimeout(() => {
+      fetchSections();
+    }, 2500);
+
+    return () => clearTimeout(fetchTimeout);
   }, []);
 
   const backgroundClasses = [
@@ -44,7 +50,7 @@ export default function BiographyPage() {
   ];
 
   if (isLoading) {
-    return <div className="text-black p-10">Loading...</div>;
+    return <LoadingScreen />;
   }
 
   if (error) {

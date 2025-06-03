@@ -70,7 +70,14 @@ export async function GET() {
     },
   ];
 
-  return new Response(JSON.stringify(catalogData), {
+  // Sort by numerical order in title
+  const sortedData = catalogData.sort((a, b) => {
+    const numA = parseInt(a.title.match(/\d+/)[0]);
+    const numB = parseInt(b.title.match(/\d+/)[0]);
+    return numA - numB;
+  });
+
+  return new Response(JSON.stringify(sortedData), {
     headers: {
       "Content-Type": "application/json",
     },
