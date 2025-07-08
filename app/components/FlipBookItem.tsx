@@ -204,75 +204,107 @@
 
 "use client";
 
-import React from "react";
-import HTMLFlipBook, { HTMLFlipBookProps } from "react-pageflip";
+import React, { useEffect, useState } from "react";
+import HTMLFlipBook from "react-pageflip";
 
 interface CatalogItem {
   title: string;
   imageUrl: string;
   description: string;
-  pages?: string[]; // expect array of image URLs here
+  pages?: string[];
 }
 
 interface FlipBookItemProps {
   item: CatalogItem;
-  isModal?: boolean; // if true, show bigger flipbook
+  isModal?: boolean;
 }
 
 const FlipBookItem = ({ item, isModal = false }: FlipBookItemProps) => {
-  // Compose pages array starting with cover page (imageUrl)
+  // 1. State for aspect ratio (width / height)
+  const [aspectRatio, setAspectRatio] = useState<number | null>(null);
+
+  // 2. Find the first image to use for aspect ratio (cover or first page)
+  const firstImage =
+    item.pages && item.pages.length > 0 ? item.pages[0] : item.imageUrl;
+
+  // 3. On mount or when item changes, load the image and get its aspect ratio
+  useEffect(() => {
+    const img = new window.Image();
+    img.onload = function () {
+      if (img.naturalWidth && img.naturalHeight) {
+        setAspectRatio(img.naturalWidth / img.naturalHeight);
+      } else {
+        setAspectRatio(1); // fallback to square
+      }
+    };
+    img.onerror = function () {
+      setAspectRatio(1); // fallback to square
+    };
+    img.src = firstImage;
+  }, [firstImage]);
+
+  // 4. Set base width for modal and non-modal
+  const baseWidth = isModal ? 500 : 200;
+
+  // 5. Calculate height based on aspect ratio
+  const width = baseWidth;
+  const height =
+    aspectRatio && aspectRatio > 0
+      ? Math.round(baseWidth / aspectRatio)
+      : baseWidth; // fallback to square
+
+  // 6. Compose pages array (unchanged)
   const pages = [
     {
       content: (
         <div
           style={{
-            padding: 20,
+            padding: 0,
             textAlign: "center",
             height: "100%",
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            backgroundColor: "#1e293b",
-            borderRadius: 8,
+            backgroundColor: "transparent",
+            borderRadius: 0,
           }}
         >
           <img
             src={item.imageUrl}
             alt={`${item.title} Cover`}
-            style={{ 
-              maxWidth: "100%", 
-              maxHeight: "100%", 
-              borderRadius: 8,
-              objectFit: "cover"
+            style={{
+              width: "100%",
+              height: "100%",
+              borderRadius: 0,
+              objectFit: "cover",
             }}
           />
         </div>
       ),
     },
-    // If pages exist, map them, else fallback to simulated pages
     ...(item.pages && item.pages.length > 0
       ? item.pages.map((imgUrl, i) => ({
           content: (
             <div
               style={{
-                padding: 20,
+                padding: 0,
                 textAlign: "center",
                 height: "100%",
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
-                backgroundColor: "#1e293b",
-                borderRadius: 8,
+                backgroundColor: "transparent",
+                borderRadius: 0,
               }}
             >
               <img
                 src={imgUrl}
                 alt={`${item.title} - page ${i + 1}`}
-                style={{ 
-                  maxWidth: "100%", 
-                  maxHeight: "100%", 
-                  borderRadius: 8,
-                  objectFit: "cover"
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  borderRadius: 0,
+                  objectFit: "cover",
                 }}
               />
             </div>
@@ -284,7 +316,6 @@ const FlipBookItem = ({ item, isModal = false }: FlipBookItemProps) => {
               <div
                 style={{
                   padding: 20,
-                  color: "white",
                   fontFamily: "Arial, sans-serif",
                   height: "100%",
                   borderRadius: 8,
@@ -320,12 +351,31 @@ const FlipBookItem = ({ item, isModal = false }: FlipBookItemProps) => {
         ]),
   ];
 
+  // 7. Only render flipbook after aspect ratio is known
+  if (!aspectRatio) {
+    return (
+      <div
+        style={{
+          width: baseWidth,
+          height: baseWidth,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "#222",
+          borderRadius: 8,
+        }}
+      >
+        <span style={{ color: "#fff" }}>Loading...</span>
+      </div>
+    );
+  }
+
   return (
     <div
       style={{
         cursor: isModal ? "default" : "pointer",
-        width: isModal ? "100%" : "280px",
-        height: isModal ? "auto" : "360px",
+        width,
+        height,
         margin: 0,
         padding: 0,
         borderRadius: 8,
@@ -336,26 +386,27 @@ const FlipBookItem = ({ item, isModal = false }: FlipBookItemProps) => {
         justifyContent: "center",
         alignItems: "center",
         position: "relative",
-        pointerEvents: isModal ? "auto" : "none", // Disable pointer events when not modal
+        pointerEvents: isModal ? "auto" : "none",
         zIndex: 1,
+        background: "#222",
       }}
     >
       <HTMLFlipBook
-        width={isModal ? 600 : 280}
-        height={isModal ? 400 : 360}
-        maxWidth={isModal ? 600 : 280}
-        minWidth={isModal ? 600 : 280}
-        maxHeight={isModal ? 400 : 360}
-        minHeight={isModal ? 400 : 360}
+        width={width}
+        height={height}
+        maxWidth={width}
+        minWidth={width}
+        maxHeight={height}
+        minHeight={height}
         className="rounded-lg"
-        style={{ 
-          margin: 0, 
+        style={{
+          margin: 0,
           zIndex: 1,
-          pointerEvents: isModal ? "auto" : "none", // Only allow interaction in modal
+          pointerEvents: isModal ? "auto" : "none",
         }}
         startPage={0}
         size="fixed"
-        drawShadow={true}
+        drawShadow={false} // <--- Disable page shadow
         maxShadowOpacity={0.5}
         showCover={true}
         mobileScrollSupport={isModal}
@@ -363,11 +414,11 @@ const FlipBookItem = ({ item, isModal = false }: FlipBookItemProps) => {
         usePortrait={false}
         startZIndex={0}
         autoSize={false}
-        swipeDistance={30}
+        swipeDistance={isModal ? 30 : 0}
         clickEventForward={false}
         useMouseEvents={isModal}
         showPageCorners={isModal}
-        disableFlipByClick={!isModal} // Only allow flipping in modal
+        disableFlipByClick={!isModal}
       >
         {pages.map((page, index) => (
           <div
@@ -380,6 +431,8 @@ const FlipBookItem = ({ item, isModal = false }: FlipBookItemProps) => {
               position: "relative",
               zIndex: 1,
               pointerEvents: isModal ? "auto" : "none",
+              border: "none",
+              padding: 0,
             }}
           >
             {page.content}
@@ -391,3 +444,4 @@ const FlipBookItem = ({ item, isModal = false }: FlipBookItemProps) => {
 };
 
 export default FlipBookItem;
+
