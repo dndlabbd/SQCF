@@ -203,7 +203,7 @@ const downloadPdfFromGoogleDrive = async (fileId, filename) => {
 };
 
 // Main extraction function
-export const extractPdfFromUrl = async (pdfUrl, pdfFileName) => {
+async function extractPdfFromUrl(pdfUrl, pdfFileName) {
   try {
     console.log('Extracting PDF:', pdfFileName, 'from:', pdfUrl);
     
@@ -250,7 +250,7 @@ export const extractPdfFromUrl = async (pdfUrl, pdfFileName) => {
       originalUrl: pdfUrl
     };
   }
-};
+}
 
 // API endpoint for manual extraction (if needed)
 export async function POST(req) {
